@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // TestWorkTools: an AI persona opens, claims (winning and losing verdicts),

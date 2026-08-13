@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 func TestKeySaveLoadRoundTrip(t *testing.T) {

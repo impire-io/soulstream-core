@@ -7,8 +7,8 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // drainOps reads all existing operations for a topic-path in stream order and returns

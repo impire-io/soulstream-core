@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // rotatedProfile builds a valid profile for persona that rotated through the given

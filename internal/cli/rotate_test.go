@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/keystore"
 )
 
 // TestKeyRotateFlow (US4): rotate publishes the hand-over, swaps the seed keeping

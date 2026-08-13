@@ -8,8 +8,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // cachedTopic is one topic as the curator knows it.

@@ -1,8 +1,8 @@
 package topic
 
 import (
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // Handle binds a client to one topic-path: the thing a persona posts through and

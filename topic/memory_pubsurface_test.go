@@ -13,11 +13,11 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/natstest"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/natstest"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // archivist is a minimal external witness: a private store of exhibits captured

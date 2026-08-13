@@ -7,7 +7,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // 010-work tools: versioned artefacts (revise, list, read) and work items

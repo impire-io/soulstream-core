@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/impire-io/soulstream/internal/config"
-	"github.com/impire-io/soulstream/internal/version"
+	"github.com/impire-io/soulstream-core/internal/config"
+	"github.com/impire-io/soulstream-core/internal/version"
 )
 
 // Config is the resolved connection configuration.

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // mkRec builds a SeqRecord for fold tests (no server, no wire).

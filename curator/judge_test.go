@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 func entry(name, subject string, tags ...string) topic.DiscoverEntry {

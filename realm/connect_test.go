@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // Connect must reject malformed names before it makes any server contact.

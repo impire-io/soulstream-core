@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/synadia-io/orbit.go/natscontext"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // Config is the required input to construct a [Client].

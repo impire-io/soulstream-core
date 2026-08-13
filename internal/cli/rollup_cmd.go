@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // cmdRollup compacts a topic: history folds into a fresh baseline, the view stays

@@ -21,11 +21,11 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/internal/version"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/registry"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/version"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/registry"
 )
 
 type handlers struct {

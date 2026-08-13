@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // definedLifecycle reports whether l is a state a persona can transition to.

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/keystore"
 )
 
 func TestProfilePublishAndShow(t *testing.T) {

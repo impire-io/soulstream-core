@@ -5,7 +5,7 @@ import (
 	"io"
 	"text/tabwriter"
 
-	"github.com/impire-io/soulstream/internal/config"
+	"github.com/impire-io/soulstream-core/internal/config"
 )
 
 // cmdConfig prints each identity field's effective value and its true source. It

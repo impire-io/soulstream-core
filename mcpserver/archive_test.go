@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // TestCloseToolCompactsAndArchivedRefusesWrites: close tidies; an archived topic

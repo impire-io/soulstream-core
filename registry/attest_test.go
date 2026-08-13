@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // attestedProfile builds an operated persona's profile whose claim on operator is

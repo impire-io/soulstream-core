@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"strings"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // Subject prefixes and wildcards for the topic taxonomy.

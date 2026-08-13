@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 func signedRecord(t *testing.T, key *identity.SigningKey, author, realmName, binding string) record.Record {

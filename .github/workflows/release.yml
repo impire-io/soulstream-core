@@ -31,34 +31,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # The remote node (node/) is a separate module; its archives APPEND to
-  # the release the core job just created for this tag (goreleaser
-  # `release.mode: append`), keeping the core release self-contained.
-  # Awake since 2026-08-03: the whole impire-io stack is public, so no
-  # credential exists here.
-  node-release:
-    runs-on: ubuntu-latest
-    needs: release # append only after the core release exists
-    env:
-      GOPRIVATE: github.com/impire-io/*
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: node/go.mod
-
-      - name: Test the node module
-        working-directory: node
-        run: go test ./...
-
-      - name: Release the node archives
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: "~> v2"
-          args: release --clean -f .goreleaser.node.yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

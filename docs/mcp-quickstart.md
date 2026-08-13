@@ -18,7 +18,7 @@ MCP host.
 This repository doubles as a plugin marketplace, so it's two commands:
 
 ```
-/plugin marketplace add impire-io/soulstream
+/plugin marketplace add impire-io/soulstream-core
 /plugin install soulstream@soulstream
 ```
 
@@ -38,8 +38,8 @@ twenty-four buttons.
 **1. Install the binary** (macOS, Linux, Windows):
 
 ```sh
-go install github.com/impire-io/soulstream/cmd/soulstream-mcp@latest
-# or grab a release build: https://github.com/impire-io/soulstream/releases
+go install github.com/impire-io/soulstream-core/cmd/soulstream-mcp@latest
+# or grab a release build: https://github.com/impire-io/soulstream-core/releases
 ```
 
 **2. Tell the tools who the agent is.** Put a

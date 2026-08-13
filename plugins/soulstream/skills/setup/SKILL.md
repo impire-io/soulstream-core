@@ -18,7 +18,7 @@ plugin data dir. Only intervene when that failed (its error names the cause):
 - Private repo access: the download uses the `gh` CLI's auth — `gh auth status`
   should succeed.
 - Manual fallbacks: download from
-  https://github.com/impire-io/soulstream/releases and put `soulstream-mcp` on PATH,
+  https://github.com/impire-io/soulstream-core/releases and put `soulstream-mcp` on PATH,
   or set `SOULSTREAM_MCP_BIN` to its location, or build from a checkout with
   `make build` (binaries in `./bin`).
 - The `soulstream` CLI (used below) installs the same ways; check with

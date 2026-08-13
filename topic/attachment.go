@@ -10,8 +10,8 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // Attach stores data in the realm's object store under attachments/<topic-path>/<uuid>

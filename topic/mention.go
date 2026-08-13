@@ -4,7 +4,7 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // mentionRe matches an @ followed by a valid persona slug (no trailing hyphen, no

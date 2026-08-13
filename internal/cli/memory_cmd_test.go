@@ -11,10 +11,10 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // turnOpID extracts a topic's first contribution op-id via show --json.

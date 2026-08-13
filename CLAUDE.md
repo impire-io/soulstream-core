@@ -72,7 +72,7 @@ SoulIdentity M2 wiring point). Research: sealed-topics graduated to design
 log to 2026-08-10).
 
 Project conventions:
-- Go 1.26; module `github.com/impire-io/soulstream`.
+- Go 1.26; module `github.com/impire-io/soulstream-core`.
 - `record` and `identity` import NO NATS; `realm`, `topic`, `registry`, `curator` are NATS-touching.
 - Keep pure logic (folds, chain validation, discovery match/merge, curator judgment) separate
   from NATS I/O so it unit-tests with no server.

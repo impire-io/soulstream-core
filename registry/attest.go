@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // Operator-claim statuses, as reported wherever a profile is displayed. A claim

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // safeBuf is a concurrency-safe buffer for the streaming-command tests, which read

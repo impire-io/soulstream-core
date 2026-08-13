@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/keystore"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/keystore"
 )
 
 // TestWhoamiUnsigned: an unsigned session reports persona + realm and no key.

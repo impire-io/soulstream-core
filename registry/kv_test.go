@@ -9,9 +9,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/natstest"
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/natstest"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // clientOn connects a persona-bound client to an embedded server.

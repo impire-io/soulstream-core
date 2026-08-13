@@ -8,9 +8,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/internal/natstest"
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/natstest"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // testConnectorLimited is testConnector against a server whose account requires

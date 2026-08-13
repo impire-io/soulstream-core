@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // bigTopic builds a topic whose materialised state document exceeds the inline

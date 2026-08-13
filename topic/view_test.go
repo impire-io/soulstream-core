@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 func mkRec(id, typ string, parents []string, payload any) record.Record {

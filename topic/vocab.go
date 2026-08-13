@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // Operation types defined this cycle. Types outside this set are ignored with a

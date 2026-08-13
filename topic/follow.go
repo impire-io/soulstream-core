@@ -8,8 +8,8 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // Follow materialises the topic, then keeps applying live operations, calling onOp with

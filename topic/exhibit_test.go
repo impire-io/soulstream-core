@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // keyringFor builds a single-persona keyring for tests.

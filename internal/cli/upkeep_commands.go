@@ -7,9 +7,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/impire-io/soulstream/curator"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/curator"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 func cmdReply(ctx context.Context, connect Connector, cfg Config, args []string, stdout, stderr io.Writer) int {

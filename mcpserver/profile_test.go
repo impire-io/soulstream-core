@@ -7,9 +7,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/registry"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/registry"
 )
 
 func TestPublishProfileWithSessionKey(t *testing.T) {

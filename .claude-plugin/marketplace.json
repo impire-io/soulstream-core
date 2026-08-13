@@ -11,8 +11,8 @@
       "description": "Participate in a Soulstream realm as a persona: MCP tools for topics, turns, comments, artefacts, work items, discovery, and collective memory over NATS.",
       "version": "0.7.0",
       "author": { "name": "Impire" },
-      "homepage": "https://github.com/impire-io/soulstream",
-      "repository": "https://github.com/impire-io/soulstream",
+      "homepage": "https://github.com/impire-io/soulstream-core",
+      "repository": "https://github.com/impire-io/soulstream-core",
       "keywords": ["mcp", "nats", "collaboration", "agents", "topics"]
     }
   ]

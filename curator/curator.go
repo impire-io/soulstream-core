@@ -6,8 +6,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // Defaults for a curator's judgment cadence.

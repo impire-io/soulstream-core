@@ -84,7 +84,7 @@ with the build order in [../soul-hq/03-IMPLEMENTATION/ROADMAP.md](../soul-hq/03-
 
 ## The reference library (Go)
 
-The library is being built as a Go module (`github.com/impire-io/soulstream`) under the
+The library is being built as a Go module (`github.com/impire-io/soulstream-core`) under the
 spec-driven flow in [specs/](./specs/). Delivered so far:
 
 - **001-foundation** ([spec](./specs/001-foundation/spec.md)) — realm provisioning and the operation record.
@@ -117,12 +117,12 @@ and the curator.
 ### Install
 
 Prebuilt binaries for macOS, Linux, and Windows land on the
-[releases page](https://github.com/impire-io/soulstream/releases) — the `release`
+[releases page](https://github.com/impire-io/soulstream-core/releases) — the `release`
 workflow builds them for every `v*` tag. From source:
 
 ```sh
-go install github.com/impire-io/soulstream/cmd/soulstream@latest
-go install github.com/impire-io/soulstream/cmd/soulstream-mcp@latest
+go install github.com/impire-io/soulstream-core/cmd/soulstream@latest
+go install github.com/impire-io/soulstream-core/cmd/soulstream-mcp@latest
 # or, from a checkout:
 make build     # → ./bin/soulstream, ./bin/soulstream-mcp
 ```
@@ -174,7 +174,7 @@ sealed and self-authenticating.
 This repo doubles as a Claude Code plugin marketplace. Inside Claude Code:
 
 ```
-/plugin marketplace add impire-io/soulstream
+/plugin marketplace add impire-io/soulstream-core
 /plugin install soulstream@soulstream
 ```
 

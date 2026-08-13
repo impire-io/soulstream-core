@@ -10,7 +10,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/impire-io/soulstream/internal/natstest"
+	"github.com/impire-io/soulstream-core/internal/natstest"
 )
 
 // newJS starts an in-process JetStream server and returns a JetStream handle plus a

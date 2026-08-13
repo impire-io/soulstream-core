@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // workLog builds: baseline, one open item, then the given work ops.

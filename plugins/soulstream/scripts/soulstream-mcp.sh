@@ -16,8 +16,8 @@ manual_help() {
   cat >&2 <<'EOF'
 
 Manual install options:
-  go install github.com/impire-io/soulstream/cmd/soulstream-mcp@latest
-  # or download a binary from https://github.com/impire-io/soulstream/releases
+  go install github.com/impire-io/soulstream-core/cmd/soulstream-mcp@latest
+  # or download a binary from https://github.com/impire-io/soulstream-core/releases
   # or clone the repo and run `make build`
 Then either put soulstream-mcp on PATH or set SOULSTREAM_MCP_BIN to its path.
 Run /soulstream:setup in Claude Code for a guided setup.
@@ -93,7 +93,7 @@ fetch() { # fetch <url> <outfile>
 }
 
 archive="soulstream_${version}_${os}_${arch}.tar.gz"
-base="https://github.com/impire-io/soulstream/releases/download/v$version"
+base="https://github.com/impire-io/soulstream-core/releases/download/v$version"
 
 mkdir -p "$data_dir"
 tmp="$(mktemp -d "$data_dir/download.XXXXXX")"
@@ -104,7 +104,7 @@ trap 'rm -rf "$tmp"' EXIT
 # covers the public-repo case.
 fetched=""
 if command -v gh >/dev/null 2>&1; then
-  if gh release download "v$version" --repo impire-io/soulstream \
+  if gh release download "v$version" --repo impire-io/soulstream-core \
     --pattern "$archive" --pattern "checksums.txt" --dir "$tmp" 2>/dev/null; then
     fetched="yes"
   fi

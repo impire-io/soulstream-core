@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/impire-io/soulstream/record"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/record"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 func TestMemoryQueryTool(t *testing.T) {

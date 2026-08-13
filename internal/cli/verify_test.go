@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/keystore"
 )
 
 // TestShowRendersVerificationGlyphs: a signed persona's ops show ✓ once its profile

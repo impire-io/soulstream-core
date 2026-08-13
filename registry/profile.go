@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/impire-io/soulstream/identity"
+	"github.com/impire-io/soulstream-core/identity"
 )
 
 // SigningKeyInfo is a persona's current public signing key. Since is author-claimed

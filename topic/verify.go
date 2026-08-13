@@ -1,8 +1,8 @@
 package topic
 
 import (
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // SigStatus is the per-op outcome of signature verification. It is annotation only:

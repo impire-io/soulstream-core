@@ -3,5 +3,5 @@ package version
 
 // Version is "dev" for source builds; release builds overwrite it via
 //
-//	-ldflags "-X github.com/impire-io/soulstream/internal/version.Version=<semver>"
+//	-ldflags "-X github.com/impire-io/soulstream-core/internal/version.Version=<semver>"
 var Version = "dev"

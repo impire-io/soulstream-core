@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/impire-io/soulstream/internal/config"
+	"github.com/impire-io/soulstream-core/internal/config"
 )
 
 // isolateIdentity keeps tests blind to the developer's real identity sources: the

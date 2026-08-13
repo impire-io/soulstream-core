@@ -1,6 +1,6 @@
 version: 2
 
-project_name: soulstream
+project_name: soulstream-core
 
 builds:
   - id: soulstream
@@ -11,7 +11,7 @@ builds:
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
     ldflags:
-      - -s -w -X github.com/impire-io/soulstream/internal/version.Version={{.Version}}
+      - -s -w -X github.com/impire-io/soulstream-core/internal/version.Version={{.Version}}
     mod_timestamp: "{{ .CommitTimestamp }}"
 
   - id: soulstream-mcp
@@ -22,7 +22,7 @@ builds:
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
     ldflags:
-      - -s -w -X github.com/impire-io/soulstream/internal/version.Version={{.Version}}
+      - -s -w -X github.com/impire-io/soulstream-core/internal/version.Version={{.Version}}
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 # One archive per platform holding both binaries.
@@ -55,6 +55,6 @@ changelog:
 release:
   github:
     owner: impire-io
-    name: soulstream
+    name: soulstream-core
   draft: false
   prerelease: auto

@@ -7,9 +7,9 @@ import (
 
 	"github.com/nats-io/nats.go/jetstream"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/record"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/record"
 )
 
 // ErrOpNotLive means the requested op is not in the stream — compacted by a rollup,

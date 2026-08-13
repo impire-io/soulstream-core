@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/registry"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/registry"
 )
 
 // keyFilePath resolves the seed-file location for cfg: --key-file flag, then

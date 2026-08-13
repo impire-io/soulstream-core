@@ -11,10 +11,10 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/internal/natstest"
-	"github.com/impire-io/soulstream/internal/version"
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/internal/natstest"
+	"github.com/impire-io/soulstream-core/internal/version"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // testConnector starts an in-process server and returns a Connector that binds a fresh

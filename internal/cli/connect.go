@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/impire-io/soulstream/identity"
-	"github.com/impire-io/soulstream/internal/keystore"
-	"github.com/impire-io/soulstream/realm"
-	"github.com/impire-io/soulstream/registry"
-	"github.com/impire-io/soulstream/topic"
+	"github.com/impire-io/soulstream-core/identity"
+	"github.com/impire-io/soulstream-core/internal/keystore"
+	"github.com/impire-io/soulstream-core/realm"
+	"github.com/impire-io/soulstream-core/registry"
+	"github.com/impire-io/soulstream-core/topic"
 )
 
 // Connector builds a realm client from config. It is injectable so tests can supply a

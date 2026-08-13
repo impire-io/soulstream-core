@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/impire-io/soulstream/realm"
+	"github.com/impire-io/soulstream-core/realm"
 )
 
 // InlineBaselineThreshold is the maximum size, in bytes, of an inline baseline state.
