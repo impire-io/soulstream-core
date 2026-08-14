@@ -26,6 +26,30 @@ func ParseMentions(body string) []string {
 	return out
 }
 
+// mergeMentions is the mention set an operation carries: the names the parser found in
+// the body, then any the caller named outright, de-duplicated and held to the same
+// validity rule either way — an invalid or empty supplied name taps nobody, exactly as
+// an invalid one written into a body does. Nil when nothing names anybody.
+//
+// Supplying names is how a caller whose surface reads better than the grammar does —
+// a picker offering "Daan" where the record's own name for that person is a fold-issued
+// slug — records who was meant without rewriting a word of what was typed.
+func mergeMentions(body string, supplied []string) []string {
+	out := ParseMentions(body)
+	seen := make(map[string]bool, len(out)+len(supplied))
+	for _, name := range out {
+		seen[name] = true
+	}
+	for _, name := range supplied {
+		if seen[name] || !identity.ValidName(name) {
+			continue
+		}
+		seen[name] = true
+		out = append(out, name)
+	}
+	return out
+}
+
 // notifyMentions publishes a mention.notify to each mentioned persona's inbox, pointing
 // at the operation that mentioned them.
 func (h *Handle) notifyMentions(ctx context.Context, opID string, mentions []string) error {

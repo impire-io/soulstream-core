@@ -34,23 +34,41 @@ func (h *Handle) Post(ctx context.Context, opType string, payload any) (string, 
 // PostTurn posts a turn.post — a contribution to the conversation. It parses @mentions
 // from the body, records them on the op, and notifies each mentioned persona's inbox.
 func (h *Handle) PostTurn(ctx context.Context, body string) (string, error) {
-	mentions := ParseMentions(body)
-	opID, err := h.Post(ctx, TypeTurnPost, TurnPayload{Body: body, Mentions: mentions})
+	return h.PostTurnMentioning(ctx, body, nil)
+}
+
+// PostTurnMentioning posts a turn.post that also taps personas the body does not name in
+// the grammar. The op carries — and the notifies reach — the union of what the parser
+// read out of the body and what the caller supplied; the body is posted exactly as
+// given, never rewritten to match. Invalid or empty supplied names are dropped.
+//
+// It is the arm for a surface that lets people write a name they recognise: the caller
+// resolves the display text to persona names and hands them over, and the record still
+// says what the person typed.
+func (h *Handle) PostTurnMentioning(ctx context.Context, body string, mentions []string) (string, error) {
+	all := mergeMentions(body, mentions)
+	opID, err := h.Post(ctx, TypeTurnPost, TurnPayload{Body: body, Mentions: all})
 	if err != nil {
 		return "", err
 	}
-	return opID, h.notifyMentions(ctx, opID, mentions)
+	return opID, h.notifyMentions(ctx, opID, all)
 }
 
 // AddComment posts a comment.add anchored to anchorOpID, with the same @mention handling
 // as PostTurn.
 func (h *Handle) AddComment(ctx context.Context, body, anchorOpID string) (string, error) {
-	mentions := ParseMentions(body)
+	return h.AddCommentMentioning(ctx, body, anchorOpID, nil)
+}
+
+// AddCommentMentioning posts a comment.add that also taps supplied personas, with the
+// same union rule as [Handle.PostTurnMentioning].
+func (h *Handle) AddCommentMentioning(ctx context.Context, body, anchorOpID string, mentions []string) (string, error) {
+	all := mergeMentions(body, mentions)
 	opID, err := h.Post(ctx, TypeCommentAdd, CommentPayload{
-		Body: body, Anchor: Anchor{Kind: "op", OpID: anchorOpID}, Mentions: mentions,
+		Body: body, Anchor: Anchor{Kind: "op", OpID: anchorOpID}, Mentions: all,
 	})
 	if err != nil {
 		return "", err
 	}
-	return opID, h.notifyMentions(ctx, opID, mentions)
+	return opID, h.notifyMentions(ctx, opID, all)
 }

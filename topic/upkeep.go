@@ -14,17 +14,23 @@ import (
 // Reply posts a comment.reply anchored to a comment (or another reply), with the
 // same @mention handling as comments.
 func (h *Handle) Reply(ctx context.Context, body, anchorOpID string) (string, error) {
+	return h.ReplyMentioning(ctx, body, anchorOpID, nil)
+}
+
+// ReplyMentioning posts a comment.reply that also taps supplied personas, with the same
+// union rule as [Handle.PostTurnMentioning].
+func (h *Handle) ReplyMentioning(ctx context.Context, body, anchorOpID string, mentions []string) (string, error) {
 	if strings.TrimSpace(anchorOpID) == "" {
 		return "", fmt.Errorf("topic: a reply needs the comment's op-id")
 	}
-	mentions := ParseMentions(body)
+	all := mergeMentions(body, mentions)
 	opID, err := h.Post(ctx, TypeCommentReply, CommentPayload{
-		Body: body, Anchor: Anchor{Kind: "op", OpID: anchorOpID}, Mentions: mentions,
+		Body: body, Anchor: Anchor{Kind: "op", OpID: anchorOpID}, Mentions: all,
 	})
 	if err != nil {
 		return "", err
 	}
-	return opID, h.notifyMentions(ctx, opID, mentions)
+	return opID, h.notifyMentions(ctx, opID, all)
 }
 
 // Edit publishes a whole-body correction of the caller's own turn, comment, or
