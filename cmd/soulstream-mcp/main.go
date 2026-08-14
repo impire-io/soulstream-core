@@ -30,6 +30,9 @@ func run(args []string, stderr io.Writer) int {
 	realmName := fs.String("realm", "", "realm name")
 	persona := fs.String("persona", "", "persona name")
 	keyFile := fs.String("key-file", "", "signing-seed file (default: SOULSTREAM_KEY_FILE, then config dir)")
+	url := fs.String("url", "", "server address to dial directly, instead of a context (env: SOULSTREAM_URL)")
+	creds := fs.String("creds", "", "NATS credentials file — the deployment's sentinel on the token lane (env: SOULSTREAM_CREDS)")
+	token := fs.String("token", "", "access token presented on connect; prefer SOULSTREAM_TOKEN, since a flag is visible to every process on the machine")
 	showVersion := fs.Bool("version", false, "print the version and exit")
 	if err := fs.Parse(args); err != nil {
 		return 2
@@ -82,8 +85,24 @@ func run(args []string, stderr io.Writer) int {
 		return 1
 	}
 
+	// The lane resolves from flag and environment only — never from a config
+	// file, because a config file can never carry a credential: the sticker
+	// names you, it can never be you.
 	ctx := context.Background()
-	rcfg := realm.Config{ContextName: resolved.Context.V, Realm: resolved.Realm.V, Persona: resolved.Persona.V}
+	rcfg := realm.Config{
+		ContextName: resolved.Context.V, Realm: resolved.Realm.V, Persona: resolved.Persona.V,
+		URL:       first(*url, os.Getenv("SOULSTREAM_URL")),
+		CredsFile: first(*creds, os.Getenv("SOULSTREAM_CREDS")),
+		Token:     first(*token, os.Getenv("SOULSTREAM_TOKEN")),
+	}
+	// An address handed over right now is a more specific answer than a context
+	// saved on this machine, so it wins — and says so, rather than leaving
+	// somebody to wonder which one they reached.
+	if rcfg.URL != "" && rcfg.ContextName != "" {
+		fmt.Fprintf(stderr, "soulstream-mcp: dialling %s; the %q context is not consulted\n",
+			rcfg.URL, rcfg.ContextName)
+		rcfg.ContextName = ""
+	}
 	// Assign only a real key: a typed-nil *SigningKey inside the interface
 	// would read as "configured to sign" and panic at first use.
 	if signer != nil {
@@ -101,4 +120,14 @@ func run(args []string, stderr io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+// first is the flag-then-environment precedence the lane resolves on, matching
+// the identity fields' first-answer-wins rule. A variable that is set but empty
+// counts as unset, as it does there.
+func first(flagValue, env string) string {
+	if flagValue != "" {
+		return flagValue
+	}
+	return env
 }

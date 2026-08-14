@@ -60,3 +60,27 @@ know, or broken JSON) stops everything with a clear message naming the file — 
 must never quietly send you to the wrong realm. And if a sticker points at a key file
 with a relative path (`./keys/ci.ed25519`), that path counts from the sticker's own
 folder, wherever you happen to be standing.
+
+## The lane an agent arrives on
+
+A saved NATS context assumes somebody sat at this machine and saved one. An agent
+handed a credential by whoever created it has nothing saved anywhere, so the MCP
+door takes its whole connection from three answers that never touch a sticker:
+
+| Flag | Variable | What it is |
+|---|---|---|
+| `--url` | `SOULSTREAM_URL` | the server address to dial |
+| `--creds` | `SOULSTREAM_CREDS` | a credentials file — on this lane, the deployment's public sentinel |
+| `--token` | `SOULSTREAM_TOKEN` | the access token that says which agent this is |
+
+Prefer the variables. A token on a command line is visible to every process on the
+machine; a variable set by whatever launched the door is not.
+
+The sentinel plus the token is the **revocable lane**: neither half admits anybody
+alone, the realm exchanges the pair for a scoped identity that expires on its own,
+and taking the token away refuses the next connection. That is why these three are
+flags and variables and never sticker fields — the rule above holds, a config file
+can name you but never be you.
+
+An address given here wins over a saved context, and says so on the way past, so
+nobody has to wonder which server they reached.

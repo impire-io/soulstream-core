@@ -31,6 +31,28 @@ func StartJetStream(t *testing.T) (url string, cleanup func()) {
 	return start(t, opts)
 }
 
+// StartJetStreamToken starts an in-process JetStream server that admits nobody
+// without the given token, so a test can prove a caller actually presented one
+// rather than merely holding it in a struct field.
+//
+// It is the plainest server that refuses an empty-handed connection. A real
+// deployment's token lane is a sentinel plus an auth callout that exchanges the
+// pair for a scoped identity, which lives in the identity plane and is proven
+// where that plane runs; what belongs here is that the connect option reaches
+// the wire.
+func StartJetStreamToken(t *testing.T, token string) (url string, cleanup func()) {
+	t.Helper()
+
+	opts := &server.Options{
+		JetStream:     true,
+		StoreDir:      t.TempDir(),
+		Host:          "127.0.0.1",
+		Port:          -1,
+		Authorization: token,
+	}
+	return start(t, opts)
+}
+
 // StartJetStreamMaxBytesRequired starts an in-process server whose account refuses
 // to create any stream without an explicit MaxBytes — the server switch behind NGS
 // R1's "Stream Requires Max Bytes Set: true" — so tests can exercise a

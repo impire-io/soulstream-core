@@ -17,6 +17,22 @@ type Config struct {
 	// ContextName is the named NATS context to connect from (empty uses the selected
 	// context).
 	ContextName string
+	// URL is an optional server address to dial directly, for a caller handed its
+	// connection details rather than a saved context — an agent whose whole
+	// configuration arrives in its environment has nothing to save one from.
+	// Setting it bypasses the context lookup, so it may not be combined with
+	// ContextName.
+	URL string
+	// CredsFile is an optional NATS credentials file. Beside a Token it is the
+	// deployment's public sentinel: a deny-all bearer that admits nobody on its
+	// own.
+	CredsFile string
+	// Token is an optional bearer presented on connect. With a sentinel it is the
+	// revocable lane: the realm's auth callout exchanges the pair for a scoped,
+	// TTL-bounded identity, and taking the token away refuses the next connection.
+	// It never appears in a config file — it arrives from a flag or the
+	// environment and lives only in memory.
+	Token string
 	// Realm is the realm name; validated as a slug and bound into canonical records.
 	Realm string
 	// Persona is optional; when set, write-side attribution is enforced against it.
@@ -38,16 +54,34 @@ type Client struct {
 	cfg Config
 }
 
-// Connect validates cfg, connects via the named NATS context, and builds a JetStream
-// handle. It fails fast — before touching any realm artefact — when a name is
-// invalid, the context is missing, the server is unreachable, or JetStream is
-// unavailable.
+// Connect validates cfg, connects — via the named NATS context, or straight to
+// Config.URL when one is given — and builds a JetStream handle. It fails fast
+// — before touching any realm artefact — when a name is invalid, the context is
+// missing, the server is unreachable, or JetStream is unavailable.
 func Connect(ctx context.Context, cfg Config) (*Client, error) {
 	if err := validateConfig(cfg); err != nil {
 		return nil, err // fail fast, before any server contact
 	}
 
-	nc, _, err := natscontext.Connect(cfg.ContextName, nats.Name("soulstream/"+cfg.Realm))
+	opts := []nats.Option{nats.Name("soulstream/" + cfg.Realm)}
+	if cfg.CredsFile != "" {
+		opts = append(opts, nats.UserCredentials(cfg.CredsFile))
+	}
+	if cfg.Token != "" {
+		opts = append(opts, nats.Token(cfg.Token))
+	}
+
+	if cfg.URL != "" {
+		nc, err := nats.Connect(cfg.URL, opts...)
+		if err != nil {
+			return nil, fmt.Errorf("realm: connect to %s: %w", cfg.URL, err)
+		}
+		return finishConnect(ctx, nc, cfg)
+	}
+
+	// The context supplies whatever it was saved with; these options come after
+	// it, so a credential handed in here layers over one the context named.
+	nc, _, err := natscontext.Connect(cfg.ContextName, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("realm: connect via context %q: %w", cfg.ContextName, err)
 	}
@@ -68,6 +102,10 @@ func NewClient(ctx context.Context, nc *nats.Conn, cfg Config) (*Client, error) 
 func validateConfig(cfg Config) error {
 	if err := identity.CheckName(cfg.Realm); err != nil {
 		return fmt.Errorf("realm: invalid realm name: %w", err)
+	}
+	if cfg.URL != "" && cfg.ContextName != "" {
+		return fmt.Errorf("realm: Config sets both URL %q and ContextName %q — a direct dial reads no context; set one",
+			cfg.URL, cfg.ContextName)
 	}
 	if cfg.Persona != "" {
 		if err := identity.CheckName(cfg.Persona); err != nil {
