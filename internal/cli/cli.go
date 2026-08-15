@@ -5,10 +5,12 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 
@@ -96,6 +98,9 @@ Commands:
   config                             show the effective identity and where each
                                      value came from (never connects)
   version                            print the client version
+
+Any other verb runs a soulstream-<verb> binary from PATH with the resolved
+identity in its environment (soulstream wrap → soulstream-wrap).
 
 Configuration (per field, the first source that answers wins):
   flag > environment > nearest .soulstream.json walking up from the working
@@ -242,10 +247,56 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer, connect C
 	case "config":
 		return cmdConfig(resolved, stdout)
 	default:
+		if code, ok := runExternal(ctx, cfg, cmd, cmdArgs, stdout, stderr); ok {
+			return code
+		}
 		fmt.Fprintf(stderr, "soulstream: unknown command %q\n\n", cmd)
 		fmt.Fprint(stderr, usageText)
 		return 2
 	}
+}
+
+// runExternal is the CLI's external-subcommand seam (the git convention): a
+// verb the switch above does not know is looked up as soulstream-<verb> on
+// PATH and run with the resolved identity projected into its environment —
+// resolution happened once, above, by the precedence rules people already
+// configure, and the child reads the same SOULSTREAM_* names every other
+// door reads. Built-ins always win (this runs only from the default arm),
+// and a verb without a binary falls through to the usual usage error: the
+// seam never turns a typo into a silent search.
+func runExternal(ctx context.Context, cfg Config, verb string, args []string, stdout, stderr io.Writer) (int, bool) {
+	bin, err := exec.LookPath("soulstream-" + verb)
+	if err != nil {
+		return 0, false
+	}
+	child := exec.CommandContext(ctx, bin, args...)
+	child.Stdin = os.Stdin
+	child.Stdout = stdout
+	child.Stderr = stderr
+	// Non-empty resolved fields layer over the parent environment; what the
+	// parent carried and the CLI did not resolve passes through untouched.
+	env := os.Environ()
+	for name, v := range map[string]string{
+		"SOULSTREAM_CONTEXT":   cfg.Context,
+		"SOULSTREAM_REALM":     cfg.Realm,
+		"SOULSTREAM_PERSONA":   cfg.Persona,
+		"SOULSTREAM_KEY_FILE":  cfg.KeyFile,
+		"SOULSTREAM_PINS_FILE": cfg.PinsFile,
+	} {
+		if v != "" {
+			env = append(env, name+"="+v)
+		}
+	}
+	child.Env = env
+	if err := child.Run(); err != nil {
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return exit.ExitCode(), true
+		}
+		fmt.Fprintf(stderr, "soulstream: %s: %v\n", verb, err)
+		return 1, true
+	}
+	return 0, true
 }
 
 // parseInterspersed parses fs allowing flags to appear before or after positional
