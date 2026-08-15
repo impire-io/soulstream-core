@@ -54,6 +54,35 @@ func (h *Handle) PostTurnMentioning(ctx context.Context, body string, mentions [
 	return opID, h.notifyMentions(ctx, opID, all)
 }
 
+// PostTurnIdempotent posts a turn.post under a caller-supplied operation id — the
+// exported arm of the library's retry-with-same-id duty. The id doubles as the
+// message's duplicate-detection identity (Nats-Msg-Id), so reposting the same id
+// within the stream's duplicate window is absorbed by the server rather than
+// creating a second operation: a caller that never learned a publish's outcome
+// retries with the same id and the record stays single. Mention handling matches
+// [Handle.PostTurnMentioning]; a repost does re-publish the mention notifies —
+// notifications are advisory pointers into a bounded inbox, so retry noise is
+// bounded noise, never a second op. An empty id falls back to a fresh one.
+func (h *Handle) PostTurnIdempotent(ctx context.Context, body string, mentions []string, opID string) (string, error) {
+	if opID == "" {
+		return h.PostTurnMentioning(ctx, body, mentions)
+	}
+	if h.lifecycle == Archived {
+		return "", fmt.Errorf("topic: %s is archived — %w", h.path, ErrTopicArchived)
+	}
+	if h.lifecycle == Closed {
+		warnf("posting %s to closed topic %s (closed is not-writable by convention)", TypeTurnPost, h.path)
+	}
+	all := mergeMentions(body, mentions)
+	id, err := publishOpWith(ctx, h.client, OpsSubject(h.path), TypeTurnPost,
+		TurnPayload{Body: body, Mentions: all}, h.frontier, opID, nil, nil)
+	if err != nil {
+		return "", err
+	}
+	h.frontier = []string{id}
+	return id, h.notifyMentions(ctx, id, all)
+}
+
 // AddComment posts a comment.add anchored to anchorOpID, with the same @mention handling
 // as PostTurn.
 func (h *Handle) AddComment(ctx context.Context, body, anchorOpID string) (string, error) {
