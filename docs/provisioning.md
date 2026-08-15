@@ -2,7 +2,7 @@
 
 **Provisioning** is setting up the empty workshop before anyone starts working: making
 sure the notebook, the message tray, the supply cupboard, and the phone book by the
-door exist, and that they're the *right kind*.
+way in exist, and that they're the *right kind*.
 
 You run it once, and you can safely run it again any time — on every restart, in a
 setup script, whenever. It follows one simple rule:
@@ -25,7 +25,7 @@ So:
 
 Say someone earlier made a notebook that **throws away old pages after a month**.
 That's not how a Soulstream notebook should work — but if provisioning quietly changed
-that setting, it could **delete history that's already there**. That's a door you can't
+that setting, it could **delete history that's already there**. That's a step you can't
 un-open.
 
 So provisioning refuses to touch it. Instead it tells you plainly:

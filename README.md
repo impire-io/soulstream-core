@@ -40,7 +40,7 @@ The full design lives under [../soul-hq/02-DESIGN/soulstream/](../soul-hq/02-DES
 **[extensions/](../soul-hq/02-DESIGN/soulstream/extensions/)** — optional conventions; a realm running none of them is still a working soulstream:
 
 - [registry.md](../soul-hq/02-DESIGN/soulstream/extensions/registry.md) — rich persona profiles, operator attestation, key distribution.
-- [library-and-adapters.md](../soul-hq/02-DESIGN/soulstream/extensions/library-and-adapters.md) — the reference library, MCP adapter, WebSocket door, bridges, presence.
+- [library-and-adapters.md](../soul-hq/02-DESIGN/soulstream/extensions/library-and-adapters.md) — the reference library, MCP adapter, WebSocket lane, bridges, presence.
 - [curation.md](../soul-hq/02-DESIGN/soulstream/extensions/curation.md) — curator personas (what the old "steward" became).
 - [work.md](../soul-hq/02-DESIGN/soulstream/extensions/work.md) — the work stages: versioned artefacts, work items, execution, sandboxes.
 - [sealed-topics.md](../soul-hq/02-DESIGN/soulstream/extensions/sealed-topics.md) — E2E-encrypted topics.
@@ -188,7 +188,7 @@ NATS context, realm provisioning, signing key. Details:
 ### The remote node (`soulstream-node`)
 
 For clients that **cannot install anything** — claude.ai custom connectors, sandboxed
-Claude Desktop, locked-down machines — the door moves to the workshop: one shared URL
+Claude Desktop, locked-down machines — the adapter moves to the workshop: one shared URL
 many people enter as themselves. `soulstream-node` (a consumer submodule under
 [`node/`](./node), its own Go module — the cycle guard: it imports both soulstream and
 the SoulIdentity client, neither core repo imports the other) is credential-free

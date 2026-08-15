@@ -31,7 +31,7 @@ differently, and the seal would no longer fit.
 ## Testimony and exhibits
 
 - An **unsigned** slip is *testimony*: "the notebook says daan wrote this." Inside the
-  workshop that's fine — the doorman (the connection's credentials) checked who came in.
+  workshop that's fine — the front desk (the connection's credentials) checked who came in.
 - A **signed** slip is an *exhibit*: it proves itself anywhere, even outside the
   workshop, even if the person holding it is a stranger you don't trust.
 

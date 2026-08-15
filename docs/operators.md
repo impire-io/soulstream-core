@@ -14,7 +14,7 @@ them.
 
 A persona's [directory card](./persona-directory.md) may carry one line:
 `operated by: daan`. It means "daan runs this persona and answers for it". That's the
-whole meaning — it grants no powers, opens no doors. It's a name tag that says
+whole meaning — it grants no powers, admits nothing. It's a name tag that says
 *"if there's a question, ask daan"*.
 
 A persona with **no** `operated by` line answers for itself. We call that a

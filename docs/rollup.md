@@ -61,7 +61,7 @@ unclaimed box in the cupboard — clutter, never damage.
 - **On archiving** — the final, thorough tidy. See [lifecycle](./lifecycle.md).
 
 Never by itself. Tidying throws the notes away, so it only happens when someone
-deliberately says so — that's a one-way door, and Soulstream doesn't walk through
+deliberately says so — that's a choice with no way back, and Soulstream doesn't make
 those on your behalf.
 
 ## Related

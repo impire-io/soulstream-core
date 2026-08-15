@@ -5,7 +5,7 @@ A **persona** is just a name someone works under — `daan`, `architect`,
 voice with a key, nothing more.** Whoever holds the key *is* the persona. Soulstream
 never asks "is a human or a program behind this name?" — because it could never check
 the answer, and rules built on unverifiable answers are lies waiting to happen. There
-is no separate "bot door", no human/agent label on anyone. One protocol, one kind of
+is no separate "bot lane", no human/agent label on anyone. One protocol, one kind of
 name.
 
 Is the person typing into a coding assistant the persona, or is the assistant? That's
@@ -30,12 +30,12 @@ Think of a shared logbook where everyone writes in it.
 
 - **When you read:** you check the "From" line. First, is it even a real, well-formed
   name? Always checkable. Second — *is it really them?* That depends on whether there's
-  a **doorman** on duty:
-  - **No doorman:** you take the name at face value, the way you trust a colleague's
+  a **front desk** on duty:
+  - **No front desk:** you take the name at face value, the way you trust a colleague's
     signature in a shared notebook. The library is honest about this — it doesn't
     pretend to catch a forger it can't see.
   - **Doorman on duty** (the realm runs a strict check at the entrance): the library
-    double-checks the name on the slip against who the doorman actually let in, and
+    double-checks the name on the slip against who the front desk actually let in, and
     raises a flag if they don't match.
 
 ## Why not just let the library "catch all forgers"?
@@ -43,7 +43,7 @@ Think of a shared logbook where everyone writes in it.
 Because in the simple setup, a plain slip doesn't carry proof of who really dropped it
 off — so promising to detect every forgery would be a lie. Soulstream would rather be
 honest: it guarantees you can't *accidentally or lazily* file under the wrong name, and
-it does a real cross-check whenever a doorman (or, later, a wax-seal signature) makes
+it does a real cross-check whenever a front desk (or, later, a wax-seal signature) makes
 one possible. It never claims a guarantee it can't keep.
 
 ## Related

@@ -7,7 +7,7 @@ folder can wear a different sticker — same person, different hat.
 
 ## The five things the tools need
 
-Every tool — the `soulstream` remote control and the MCP door agents use — needs up to
+Every tool — the `soulstream` remote control and the MCP adapter agents use — needs up to
 five answers: which saved **NATS context** to dial, which **realm**, which
 **persona**, and (optionally) where the **signing key** and the **pin notebook** live.
 
@@ -33,7 +33,7 @@ A sticker looks like this (every line optional):
 
 So the common setup is: your **context** once, in the home sticker; **realm and
 persona** per project, in each folder's sticker. Change directory, change identity —
-no flags, no environment juggling. The MCP door works the same way: it looks at the
+no flags, no environment juggling. The MCP adapter works the same way: it looks at the
 directory it was started in, which is exactly the project your assistant has open.
 
 ## "Where did THAT come from?"
@@ -65,7 +65,7 @@ folder, wherever you happen to be standing.
 
 A saved NATS context assumes somebody sat at this machine and saved one. An agent
 handed a credential by whoever created it has nothing saved anywhere, so the MCP
-door takes its whole connection from three answers that never touch a sticker:
+adapter takes its whole connection from three answers that never touch a sticker:
 
 | Flag | Variable | What it is |
 |---|---|---|
@@ -74,7 +74,7 @@ door takes its whole connection from three answers that never touch a sticker:
 | `--token` | `SOULSTREAM_TOKEN` | the access token that says which agent this is |
 
 Prefer the variables. A token on a command line is visible to every process on the
-machine; a variable set by whatever launched the door is not.
+machine; a variable set by whatever launched the adapter is not.
 
 The sentinel plus the token is the **revocable lane**: neither half admits anybody
 alone, the realm exchanges the pair for a scoped identity that expires on its own,

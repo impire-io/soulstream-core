@@ -10,7 +10,7 @@ the letters you sealed.
 
 ## Publishing your card
 
-You write your own card (`soulstream profile publish`), and only you can — the doorman
+You write your own card (`soulstream profile publish`), and only you can — the front desk
 checks. The first time is a fresh card. Later you may re-write the friendly bits
 (display name, description) whenever you like. But the **seal picture on your card
 never changes silently** — replacing a seal has its own careful ritual (below).
