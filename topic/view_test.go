@@ -18,7 +18,7 @@ func mkRec(id, typ string, parents []string, payload any) record.Record {
 		p, _ = json.Marshal(v)
 	}
 	return record.Record{
-		ID: id, Author: "daan", Type: typ, Parents: parents,
+		ID: id, Author: "daan", Acting: "daan", Type: typ, Parents: parents,
 		Timestamp: time.Unix(0, 0).UTC(), Payload: p,
 	}
 }

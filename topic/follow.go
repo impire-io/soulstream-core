@@ -68,7 +68,7 @@ func (h *Handle) Follow(ctx context.Context, onOp func(*MaterializedTopic)) erro
 
 		// Verify each op as it arrives, against its wire form (manifest resolution
 		// below may rewrite the first record's payload).
-		statuses[rec.ID] = VerifyRecord(rec, h.client.Realm(), h.path, h.keyring)
+		statuses[rec.ID] = VerifyRecord(rec, h.client.RealmKey(), h.path, h.keyring)
 
 		recs = append(recs, SeqRecord{Record: rec, StreamSeq: md.Sequence.Stream})
 		if len(recs) == 1 {

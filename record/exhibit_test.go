@@ -12,6 +12,7 @@ func testExhibit(t *testing.T) Exhibit {
 	rec := Record{
 		ID:        NewID(),
 		Author:    "daan",
+		Acting:    "daan",
 		Type:      "turn.post",
 		Timestamp: time.Now().UTC().Truncate(time.Second),
 		Signature: "c2lnbmF0dXJl",

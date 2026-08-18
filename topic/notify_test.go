@@ -153,6 +153,12 @@ func TestMigratedNotificationsStillVerify(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// The identity is a v2 artifact orthogonal to the legacy stream
+	// shape: signing needs it in any world.
+	if err := realm.EnsureIdentity(ctx, c.JetStream(), nil, "test-realm"); err != nil {
+		t.Fatal(err)
+	}
+
 	// A signed mention lands its notification in the legacy stream.
 	h, err := StartTopic(ctx, c, StartTopicInput{Name: "legacy"})
 	if err != nil {

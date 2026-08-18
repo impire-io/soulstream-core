@@ -13,7 +13,7 @@ var fixedTS = time.Date(2026, 7, 11, 14, 3, 22, 0, time.UTC)
 func TestCanonicalDeterministic(t *testing.T) {
 	id := NewID()
 	rec := func(payload string) Record {
-		return Record{ID: id, Author: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(payload)}
+		return Record{ID: id, Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(payload)}
 	}
 
 	// Same payload, keys supplied in different orders.
@@ -38,7 +38,7 @@ func TestCanonicalDeterministic(t *testing.T) {
 
 // FR-022: realm and topic are bound — changing either changes the bytes.
 func TestCanonicalBindsRealmAndTopic(t *testing.T) {
-	rec := Record{ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(`{}`)}
+	rec := Record{ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(`{}`)}
 
 	c1, err := rec.Canonical("acme", "topic-a")
 	if err != nil {
@@ -59,7 +59,7 @@ func TestCanonicalBindsRealmAndTopic(t *testing.T) {
 func TestCanonicalLossless(t *testing.T) {
 	parent := NewID()
 	rec := Record{
-		ID: NewID(), Author: "architect", Parents: []string{parent}, Type: "comment.add",
+		ID: NewID(), Author: "architect", Acting: "architect", Parents: []string{parent}, Type: "comment.add",
 		Timestamp: fixedTS, Signature: "sig-123", Payload: []byte(`{"body":"x"}`),
 	}
 
@@ -97,7 +97,7 @@ func TestCanonicalLossless(t *testing.T) {
 
 // FR-023: an empty signature is omitted; empty parents encode as [] not null.
 func TestCanonicalOmitsEmptySigAndEmptyParents(t *testing.T) {
-	rec := Record{ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(`{}`)}
+	rec := Record{ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte(`{}`)}
 	c, err := rec.Canonical("acme", "topic-a")
 	if err != nil {
 		t.Fatal(err)
@@ -116,7 +116,7 @@ func TestCanonicalOmitsEmptySigAndEmptyParents(t *testing.T) {
 }
 
 func TestCanonicalRejectsNonJSONPayload(t *testing.T) {
-	rec := Record{ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte("not json")}
+	rec := Record{ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: fixedTS, Payload: []byte("not json")}
 	if _, err := rec.Canonical("acme", "topic-a"); err == nil {
 		t.Error("Canonical with non-JSON payload: got nil, want ErrBadPayload")
 	}

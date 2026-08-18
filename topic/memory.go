@@ -162,7 +162,7 @@ func MemoryQuery(ctx context.Context, c *realm.Client, in MemoryQueryInput, kr *
 		if json.Unmarshal(rec.Payload, &ap) != nil || strings.TrimSpace(ap.Answer) == "" {
 			continue
 		}
-		sig := VerifyRecord(rec, c.Realm(), ServiceMemory, kr)
+		sig := VerifyRecord(rec, c.RealmKey(), ServiceMemory, kr)
 		if sig == SigFailed {
 			continue // evidence of tampering is not testimony
 		}
@@ -281,7 +281,7 @@ func FetchExhibit(ctx context.Context, c *realm.Client, path, opID string, timeo
 		if perr != nil || rec.Type != TypeMemoryExhibit {
 			continue
 		}
-		if VerifyRecord(rec, c.Realm(), ServiceMemory, kr) == SigFailed {
+		if VerifyRecord(rec, c.RealmKey(), ServiceMemory, kr) == SigFailed {
 			continue // the reply op itself is tampered
 		}
 		var ep MemoryExhibitPayload
@@ -291,7 +291,7 @@ func FetchExhibit(ctx context.Context, c *realm.Client, path, opID string, timeo
 		// The exhibit must actually be the requested op in this realm — a witness
 		// answering with a different (even validly signed) document is malformed.
 		exRec, rerr := ep.Exhibit.Record()
-		if rerr != nil || exRec.ID != opID || ep.Exhibit.Realm != c.Realm() || ep.Exhibit.Binding != path {
+		if rerr != nil || exRec.ID != opID || ep.Exhibit.Realm != c.RealmKey() || ep.Exhibit.Binding != path {
 			continue
 		}
 		verdict := VerifyRecord(exRec, ep.Exhibit.Realm, ep.Exhibit.Binding, kr)

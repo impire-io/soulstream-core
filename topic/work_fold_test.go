@@ -173,7 +173,7 @@ func TestWorkFoldMalformedVsVoid(t *testing.T) {
 	})
 	t.Run("unreadable payload is malformed", func(t *testing.T) {
 		bad := SeqRecord{Record: record.Record{
-			ID: "clm-x", Author: "daan", Type: TypeWorkClaim, Parents: []string{"item-1"},
+			ID: "clm-x", Author: "daan", Acting: "daan", Type: TypeWorkClaim, Parents: []string{"item-1"},
 			Timestamp: time.Date(2026, 7, 21, 12, 0, 0, 0, time.UTC),
 			Payload:   []byte(`{"anchor":"not-an-object"}`),
 		}, StreamSeq: 3}

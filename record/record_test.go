@@ -48,28 +48,28 @@ func TestRecordRoundTrip(t *testing.T) {
 		rec  Record
 	}{
 		{"no-parents", Record{
-			ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: ts,
+			ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: ts,
 			Payload: []byte(`{"body":"hello"}`),
 		}},
 		{"one-parent", Record{
-			ID: NewID(), Author: "architect", Parents: []string{p1}, Type: "comment.add",
+			ID: NewID(), Author: "architect", Acting: "architect", Parents: []string{p1}, Type: "comment.add",
 			Timestamp: ts, Payload: []byte(`{"body":"noted"}`),
 		}},
 		{"many-parents", Record{
-			ID: NewID(), Author: "bookkeeper-agent", Parents: []string{p1, p2}, Type: "baseline",
+			ID: NewID(), Author: "bookkeeper-agent", Acting: "bookkeeper-agent", Parents: []string{p1, p2}, Type: "baseline",
 			Timestamp: ts, Payload: []byte(`{"state":{}}`),
 		}},
 		{"with-signature", Record{
-			ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: ts,
+			ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: ts,
 			Signature: "ed25519-placeholder-sig", Payload: []byte(`{}`),
 		}},
 		{"with-unknown-headers", Record{
-			ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: ts,
+			ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: ts,
 			Payload: []byte(`{}`),
 			Extras:  map[string]string{"Soulstream-Experimental": "yes", "Soulstream-Trace": "abc"},
 		}},
 		{"subsecond-timestamp", Record{
-			ID: NewID(), Author: "daan", Type: "turn.post",
+			ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post",
 			Timestamp: time.Date(2026, 7, 11, 14, 3, 22, 500_000_000, time.UTC),
 			Payload:   []byte(`{}`),
 		}},
@@ -96,7 +96,7 @@ func TestRecordRoundTrip(t *testing.T) {
 func TestParentsAbsentVsEmpty(t *testing.T) {
 	ts := time.Date(2026, 7, 11, 14, 3, 22, 0, time.UTC)
 
-	rec := Record{ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: ts, Payload: []byte(`{}`)}
+	rec := Record{ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: ts, Payload: []byte(`{}`)}
 	headers, _, err := rec.Build()
 	if err != nil {
 		t.Fatalf("Build: %v", err)
@@ -119,7 +119,7 @@ func TestParentsAbsentVsEmpty(t *testing.T) {
 func TestUnknownHeadersPreserved(t *testing.T) {
 	ts := time.Date(2026, 7, 11, 14, 3, 22, 0, time.UTC)
 	rec := Record{
-		ID: NewID(), Author: "daan", Type: "turn.post", Timestamp: ts, Payload: []byte(`{}`),
+		ID: NewID(), Author: "daan", Acting: "daan", Type: "turn.post", Timestamp: ts, Payload: []byte(`{}`),
 		Extras: map[string]string{"Soulstream-Future": "42"},
 	}
 	headers, payload, err := rec.Build()
@@ -162,7 +162,7 @@ func TestParseRejectsMalformed(t *testing.T) {
 		{"missing-type", func(h map[string][]string) { delete(h, HeaderType) }, ErrMissingField},
 		{"missing-ts", func(h map[string][]string) { delete(h, HeaderTs) }, ErrMissingField},
 		{"missing-version", func(h map[string][]string) { delete(h, HeaderVersion) }, ErrMissingField},
-		{"bad-version-value", func(h map[string][]string) { h[HeaderVersion] = []string{"2"} }, ErrBadVersion},
+		{"bad-version-value", func(h map[string][]string) { h[HeaderVersion] = []string{"3"} }, ErrBadVersion},
 		{"non-integer-version", func(h map[string][]string) { h[HeaderVersion] = []string{"one"} }, ErrBadVersion},
 		{"bad-timestamp", func(h map[string][]string) { h[HeaderTs] = []string{"yesterday"} }, ErrBadTimestamp},
 		{"bad-author", func(h map[string][]string) { h[HeaderAuthor] = []string{"Bad Author"} }, ErrBadAuthor},

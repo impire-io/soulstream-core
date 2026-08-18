@@ -63,6 +63,7 @@ func buildOpMsg(c *realm.Client, subject, binding, opType string, payload any, p
 	rec := record.Record{
 		ID:        opID,
 		Author:    author,
+		Acting:    c.Acting(),
 		Parents:   parents,
 		Type:      opType,
 		Timestamp: time.Now().UTC(),
@@ -76,7 +77,11 @@ func buildOpMsg(c *realm.Client, subject, binding, opType string, payload any, p
 	// operation outright: publishing never falls back to unsigned, and an EMPTY
 	// signature counts as a failure because it would silently travel as "unsigned".
 	if signer := c.Signer(); signer != nil {
-		canonical, cerr := rec.Canonical(c.Realm(), binding)
+		realmKey := c.RealmKey()
+		if realmKey == "" {
+			return nil, "", realm.ErrNoIdentity
+		}
+		canonical, cerr := rec.Canonical(realmKey, binding)
 		if cerr != nil {
 			return nil, "", fmt.Errorf("topic: canonicalise %s for signing: %w", opType, cerr)
 		}

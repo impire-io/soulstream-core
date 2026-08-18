@@ -17,7 +17,7 @@ func foldRec(seq uint64, id, author, opType string, payload any, parents ...stri
 	}
 	return SeqRecord{
 		Record: record.Record{
-			ID: id, Author: author, Type: opType, Parents: parents,
+			ID: id, Author: author, Acting: author, Type: opType, Parents: parents,
 			Timestamp: time.Date(2026, 7, 21, 12, 0, 0, 0, time.UTC), Payload: data,
 		},
 		StreamSeq: seq,

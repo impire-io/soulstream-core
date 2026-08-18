@@ -12,8 +12,8 @@ import (
 func signedRecord(t *testing.T, key *identity.SigningKey, author, realmName, binding string) record.Record {
 	t.Helper()
 	rec := record.Record{
-		ID:        record.NewID(),
-		Author:    author,
+		ID:     record.NewID(),
+		Author: author, Acting: author,
 		Type:      TypeTurnPost,
 		Timestamp: time.Now().UTC(),
 		Payload:   []byte(`{"body":"hi"}`),
@@ -44,7 +44,7 @@ func TestVerifyRecordStatuses(t *testing.T) {
 		Distrusted: map[string]bool{"mallory": true},
 	}
 
-	unsigned := record.Record{ID: record.NewID(), Author: "signer", Type: TypeTurnPost,
+	unsigned := record.Record{ID: record.NewID(), Author: "signer", Acting: "signer", Type: TypeTurnPost,
 		Timestamp: time.Now().UTC(), Payload: []byte(`{}`)}
 
 	cases := []struct {

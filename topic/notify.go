@@ -104,7 +104,7 @@ func FetchInbox(ctx context.Context, c *realm.Client, persona string, limit int,
 			if json.Unmarshal(rec.Payload, &np) == nil {
 				all = append(all, Notification{
 					Topic: np.Topic, OpID: np.OpID, Author: np.Author,
-					Sig: VerifyRecord(rec, c.Realm(), persona, kr),
+					Sig: VerifyRecord(rec, c.RealmKey(), persona, kr),
 				})
 			}
 		}
@@ -175,7 +175,7 @@ func FollowInbox(ctx context.Context, c *realm.Client, persona string, kr *ident
 		if onNotify != nil {
 			onNotify(Notification{
 				Topic: np.Topic, OpID: np.OpID, Author: np.Author,
-				Sig: VerifyRecord(rec, c.Realm(), persona, kr),
+				Sig: VerifyRecord(rec, c.RealmKey(), persona, kr),
 			})
 		}
 	}

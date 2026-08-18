@@ -95,6 +95,7 @@ func TestMergeReply(t *testing.T) {
 // given entries as persona (signed when key != nil). It returns a stop func.
 func scriptedAnswerer(t *testing.T, url, persona string, key *identity.SigningKey, entries []DiscoverEntry, delay time.Duration) func() {
 	t.Helper()
+	responderRealmKey := testRealmKey(t, url)
 	nc, err := nats.Connect(url)
 	if err != nil {
 		t.Fatal(err)
@@ -106,11 +107,11 @@ func scriptedAnswerer(t *testing.T, url, persona string, key *identity.SigningKe
 		time.Sleep(delay)
 		payload, _ := json.Marshal(DiscoverReplyPayload{Matches: entries})
 		rec := record.Record{
-			ID: record.NewID(), Author: persona, Type: TypeDiscoverReply,
+			ID: record.NewID(), Author: persona, Acting: persona, Type: TypeDiscoverReply,
 			Timestamp: time.Now().UTC(), Payload: payload,
 		}
 		if key != nil {
-			canonical, cerr := rec.Canonical("test-realm", ServiceDiscover)
+			canonical, cerr := rec.Canonical(responderRealmKey, ServiceDiscover)
 			if cerr != nil {
 				return
 			}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -37,6 +38,11 @@ type Config struct {
 	Realm string
 	// Persona is optional; when set, write-side attribution is enforced against it.
 	Persona string
+	// Acting names whose hand holds the pen (E3) when it is not the
+	// persona itself — an assistant publishing under the person's
+	// authorship. Empty means the persona: acting == author, the
+	// ordinary case.
+	Acting string
 	// Signer is optional; when set, every op this client publishes carries an
 	// Ed25519 signature over its canonical record, and a signing failure fails
 	// the operation — there is no unsigned fallback. Nil publishes unsigned,
@@ -52,6 +58,9 @@ type Client struct {
 	nc  *nats.Conn
 	js  jetstream.JetStream
 	cfg Config
+
+	identityMu sync.Mutex
+	realmKey   string
 }
 
 // Connect validates cfg, connects — via the named NATS context, or straight to
@@ -151,7 +160,40 @@ func finishConnect(ctx context.Context, nc *nats.Conn, cfg Config) (*Client, err
 // Provision brings this client's realm to the mandated shape (see [ProvisionOn]).
 // An optional [Budgets] value (at most one) sets creation-time byte roofs.
 func (c *Client) Provision(ctx context.Context, budgets ...Budgets) (*ProvisionReport, error) {
+	// The realm identity first (A10): born from the connection's real
+	// account key where one exists, minted otherwise — first wins.
+	if _, err := provisionIdentity(ctx, c.js, c.nc, c.cfg.Realm); err != nil {
+		return nil, err
+	}
 	return ProvisionOn(ctx, c.js, budgets...)
+}
+
+// RealmKey returns the realm's cryptographic identity — what every v2
+// canonical binds (A10). Loaded once; "" when the realm has none
+// (pre-v2 or unprovisioned): verification then reads unknown-key and
+// signing refuses with ErrNoIdentity.
+func (c *Client) RealmKey() string {
+	c.identityMu.Lock()
+	defer c.identityMu.Unlock()
+	if c.realmKey == "" {
+		// Only success caches: a client connected before its realm was
+		// provisioned learns the identity the moment it exists.
+		if id, err := LoadIdentity(context.Background(), c.js); err == nil {
+			c.realmKey = id.RealmKey
+		}
+	}
+	return c.realmKey
+}
+
+// Acting is the identity stamped into every published record (E3):
+// Config.Acting when set (an assistant publishing under another's
+// authorship names its own hand), the persona otherwise — self-claim
+// here, custodian-verified on the sign.record lane.
+func (c *Client) Acting() string {
+	if c.cfg.Acting != "" {
+		return c.cfg.Acting
+	}
+	return c.cfg.Persona
 }
 
 // EnforceAuthor is the write-side attribution guard. When the client is persona-bound

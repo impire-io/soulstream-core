@@ -17,6 +17,7 @@ var ErrBadPayload = errors.New("record: payload is not valid JSON")
 type canonicalRecord struct {
 	V       int             `json:"v"`
 	Realm   string          `json:"realm"`
+	Acting  string          `json:"acting"`
 	Topic   string          `json:"topic"`
 	ID      string          `json:"id"`
 	Author  string          `json:"author"`
@@ -28,7 +29,9 @@ type canonicalRecord struct {
 }
 
 // Canonical produces the RFC 8785 (JCS) canonical byte sequence of the record bound
-// to realm and topic. Two records equal in content produce byte-identical output
+// to the realm IDENTITY (its cryptographic key since v2 — A10: a
+// name-scoped signature could be replayed into a realm reusing the
+// name; the key scopes it to the trust root) and topic. Two records equal in content produce byte-identical output
 // regardless of the order their fields (or their payload's JSON keys) were supplied —
 // that stability is what makes the bytes a stable signing input. Binding realm and
 // topic prevents an operation being re-presented as belonging to another realm or
@@ -64,6 +67,7 @@ func (r Record) Canonical(realm, topic string) ([]byte, error) {
 	raw, err := json.Marshal(canonicalRecord{
 		V:       Version,
 		Realm:   realm,
+		Acting:  r.Acting,
 		Topic:   topic,
 		ID:      r.ID,
 		Author:  r.Author,

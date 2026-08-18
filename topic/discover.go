@@ -123,7 +123,7 @@ func Discover(ctx context.Context, c *realm.Client, in DiscoverInput, kr *identi
 		if json.Unmarshal(rec.Payload, &reply) != nil || len(reply.Matches) == 0 {
 			continue
 		}
-		sig := VerifyRecord(rec, c.Realm(), ServiceDiscover, kr)
+		sig := VerifyRecord(rec, c.RealmKey(), ServiceDiscover, kr)
 		mergeReply(results, &order, rec.Author, sig, reply.Matches)
 	}
 

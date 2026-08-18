@@ -22,8 +22,8 @@ func TestPublishDedupByOpID(t *testing.T) {
 	}
 
 	rec := record.Record{
-		ID:        record.NewID(),
-		Author:    "daan",
+		ID:     record.NewID(),
+		Author: "daan", Acting: "daan",
 		Type:      "turn.post",
 		Timestamp: time.Now().UTC(),
 		Payload:   []byte(`{"body":"hello"}`),

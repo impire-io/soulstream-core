@@ -79,7 +79,7 @@ func TestCaptureExhibitLiveOpVerifies(t *testing.T) {
 	if err != nil {
 		t.Fatalf("capture: %v", err)
 	}
-	if ex.Version != record.ExhibitVersion || ex.Realm != "test-realm" || ex.Binding != h.Path() {
+	if ex.Version != record.ExhibitVersion || ex.Realm != testRealmKey(t, url) || ex.Binding != h.Path() {
 		t.Errorf("exhibit envelope wrong: %+v", ex)
 	}
 	if ex.Subject != OpsSubject(h.Path()) {

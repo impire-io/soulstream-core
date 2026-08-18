@@ -30,8 +30,8 @@ func TestQuickstartFlow(t *testing.T) {
 
 	// 2. Build an operation record and put it on the stream.
 	rec := record.Record{
-		ID:        record.NewID(),
-		Author:    "daan",
+		ID:     record.NewID(),
+		Author: "daan", Acting: "daan",
 		Type:      "turn.post",
 		Timestamp: time.Now().UTC(),
 		Payload:   []byte(`{"body":"hello soulstream"}`),

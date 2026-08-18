@@ -83,10 +83,10 @@ func rawMessages(t *testing.T, c *realm.Client, subject string) []struct {
 
 // verifyWire checks a wire record's signature offline: only the record, the subject it
 // arrived on, and the public key — no server, no directory (SC-001, FR-014).
-func verifyWire(rec record.Record, subject, pubKey string) bool {
+func verifyWire(rec record.Record, subject, pubKey, realmKey string) bool {
 	unsigned := rec
 	unsigned.Signature = ""
-	canonical, err := unsigned.Canonical("test-realm", canonicalBinding(subject))
+	canonical, err := unsigned.Canonical(realmKey, canonicalBinding(subject))
 	if err != nil {
 		return false
 	}
@@ -142,7 +142,7 @@ func TestSignedPersonaSignsEveryOpFamily(t *testing.T) {
 				t.Errorf("%s %s: unsigned op from a key-configured persona", m.Subject, m.Rec.Type)
 				continue
 			}
-			if !verifyWire(m.Rec, m.Subject, key.PublicKey()) {
+			if !verifyWire(m.Rec, m.Subject, key.PublicKey(), testRealmKey(t, url)) {
 				t.Errorf("%s %s: signature does not verify", m.Subject, m.Rec.Type)
 			}
 		}
@@ -162,15 +162,16 @@ func TestTamperingBreaksTheSignature(t *testing.T) {
 		t.Fatalf("generate key: %v", err)
 	}
 
+	const rk = "AREALMKEYSTANDIN" // canonical-binding math needs no server
 	rec := record.Record{
-		ID:        record.NewID(),
-		Author:    "signer",
+		ID:     record.NewID(),
+		Author: "signer", Acting: "signer",
 		Parents:   []string{record.NewID()},
 		Type:      TypeTurnPost,
 		Timestamp: time.Now().UTC().Truncate(time.Second),
 		Payload:   []byte(`{"body":"the truth"}`),
 	}
-	canonical, err := rec.Canonical("test-realm", "a-topic")
+	canonical, err := rec.Canonical(rk, "a-topic")
 	if err != nil {
 		t.Fatalf("canonical: %v", err)
 	}
@@ -189,24 +190,24 @@ func TestTamperingBreaksTheSignature(t *testing.T) {
 		return identity.VerifySignature(key.PublicKey(), c, r.Signature)
 	}
 
-	if !verify(rec, "test-realm", "a-topic") {
+	if !verify(rec, rk, "a-topic") {
 		t.Fatal("untampered record must verify")
 	}
 
 	tampers := map[string]func(r *record.Record) (realmName, binding string){
-		"author": func(r *record.Record) (string, string) { r.Author = "mallory"; return "test-realm", "a-topic" },
+		"author": func(r *record.Record) (string, string) { r.Author = "mallory"; return rk, "a-topic" },
 		"payload": func(r *record.Record) (string, string) {
 			r.Payload = []byte(`{"body":"a lie"}`)
-			return "test-realm", "a-topic"
+			return rk, "a-topic"
 		},
-		"parents": func(r *record.Record) (string, string) { r.Parents = nil; return "test-realm", "a-topic" },
+		"parents": func(r *record.Record) (string, string) { r.Parents = nil; return rk, "a-topic" },
 		"ts": func(r *record.Record) (string, string) {
 			r.Timestamp = r.Timestamp.Add(time.Hour)
-			return "test-realm", "a-topic"
+			return rk, "a-topic"
 		},
-		"type":        func(r *record.Record) (string, string) { r.Type = TypeCommentAdd; return "test-realm", "a-topic" },
-		"id":          func(r *record.Record) (string, string) { r.ID = record.NewID(); return "test-realm", "a-topic" },
-		"cross-topic": func(_ *record.Record) (string, string) { return "test-realm", "other-topic" },
+		"type":        func(r *record.Record) (string, string) { r.Type = TypeCommentAdd; return rk, "a-topic" },
+		"id":          func(r *record.Record) (string, string) { r.ID = record.NewID(); return rk, "a-topic" },
+		"cross-topic": func(_ *record.Record) (string, string) { return rk, "other-topic" },
 		"cross-realm": func(_ *record.Record) (string, string) { return "other-realm", "a-topic" },
 	}
 	for name, tamper := range tampers {
@@ -319,12 +320,12 @@ func TestDelegatedSigningIsTransparent(t *testing.T) {
 			t.Fatalf("no messages on %s", subject)
 		}
 		for _, m := range msgs {
-			if !verifyWire(m.Rec, m.Subject, key.PublicKey()) {
+			if !verifyWire(m.Rec, m.Subject, key.PublicKey(), testRealmKey(t, url)) {
 				t.Errorf("%s %s: delegated signature does not verify", m.Subject, m.Rec.Type)
 			}
 			unsigned := m.Rec
 			unsigned.Signature = ""
-			canonical, cerr := unsigned.Canonical("test-realm", canonicalBinding(m.Subject))
+			canonical, cerr := unsigned.Canonical(testRealmKey(t, url), canonicalBinding(m.Subject))
 			if cerr != nil {
 				t.Fatalf("recompute canonical: %v", cerr)
 			}
@@ -550,7 +551,7 @@ func TestSignedTurnVerifiesAgainstPublicKey(t *testing.T) {
 		if tp.Body != "signed statement" {
 			t.Errorf("body = %q", tp.Body)
 		}
-		if !verifyWire(m.Rec, m.Subject, key.PublicKey()) {
+		if !verifyWire(m.Rec, m.Subject, key.PublicKey(), testRealmKey(t, url)) {
 			t.Error("turn signature does not verify against the persona's public key")
 		}
 		return

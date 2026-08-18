@@ -75,7 +75,7 @@ func TestKeyLifecycle(t *testing.T) {
 	}
 	unsigned := rec
 	unsigned.Signature = ""
-	canonical, err := unsigned.Canonical("acme", path)
+	canonical, err := unsigned.Canonical(realmKeyOf(t, url), path)
 	if err != nil {
 		t.Fatalf("canonical: %v", err)
 	}
@@ -130,4 +130,24 @@ func lastOpsRecord(t *testing.T, url, path string) record.Record {
 		t.Fatalf("parse: %v", err)
 	}
 	return rec
+}
+
+// realmKeyOf resolves the provisioned realm identity — since v2 the
+// key, never the name, binds canonicals (A10).
+func realmKeyOf(t *testing.T, url string) string {
+	t.Helper()
+	nc, err := nats.Connect(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer nc.Close()
+	js, err := jetstream.New(nc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, err := realm.LoadIdentity(context.Background(), js)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return id.RealmKey
 }

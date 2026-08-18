@@ -81,7 +81,7 @@ func CaptureExhibit(ctx context.Context, c *realm.Client, path, opID string) (re
 			}
 			return record.Exhibit{
 				Version: record.ExhibitVersion,
-				Realm:   c.Realm(),
+				Realm:   c.RealmKey(),
 				Binding: canonicalBinding(subject),
 				Subject: subject,
 				Headers: headers,

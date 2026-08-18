@@ -13,7 +13,7 @@ func (h *Handle) Materialise(ctx context.Context) (*MaterializedTopic, error) {
 
 	// Verify against the wire form BEFORE manifest resolution rewrites the
 	// baseline's payload — the signature covers the bytes that travelled.
-	statuses := annotate(recs, h.client.Realm(), h.path, h.keyring)
+	statuses := annotate(recs, h.client.RealmKey(), h.path, h.keyring)
 	baselineID := ""
 	if len(recs) > 0 {
 		baselineID = recs[0].Record.ID
@@ -31,7 +31,7 @@ func (h *Handle) Materialise(ctx context.Context) (*MaterializedTopic, error) {
 
 	// Enrich the view with the topic's announcement (from its INFO subject).
 	if ann, annRec, err := fetchAnnouncement(ctx, h.client, h.path); err == nil && ann != nil {
-		ann.Sig = VerifyRecord(*annRec, h.client.Realm(), h.path, h.keyring)
+		ann.Sig = VerifyRecord(*annRec, h.client.RealmKey(), h.path, h.keyring)
 		mt.Announcement = ann
 	}
 

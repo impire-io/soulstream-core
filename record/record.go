@@ -10,8 +10,15 @@ import (
 	"github.com/impire-io/soulstream-core/identity"
 )
 
-// Version is the only supported wire-format version.
-const Version = 1
+// Version is the wire-format version this library WRITES. Version 1
+// records (pre-acting, name-bound canonicals) still PARSE — reading old
+// realms must never hard-fail — but their signatures verify as
+// legacy-shape: the V2 clean break (hq episode 0112) re-founds a realm
+// whose history must stay exhibit-grade.
+const Version = 2
+
+// LegacyVersion is the last pre-break version, still readable.
+const LegacyVersion = 1
 
 // Wire header names. Fixed protocol tokens are capitalised exactly as shown; NATS
 // headers are case-sensitive.
@@ -23,6 +30,7 @@ const (
 	HeaderType    = "Soulstream-Type"
 	HeaderTs      = "Soulstream-Ts"
 	HeaderSig     = "Soulstream-Sig"
+	HeaderActing  = "Soulstream-Acting"
 
 	headerPrefix = "Soulstream-"
 )
@@ -32,6 +40,7 @@ const (
 type Record struct {
 	ID        string            // UUIDv4 (also the Nats-Msg-Id)
 	Author    string            // persona slug this op is attributed to
+	Acting    string            // the publishing connection's identity — whose hand held the pen (E3); "" only on parsed legacy (v1) records
 	Parents   []string          // ordered parent op-ids; nil/empty means no parents
 	Type      string            // e.g. "turn.post"; non-empty, not enumerated here
 	Timestamp time.Time         // author-claimed, informational only
@@ -44,7 +53,7 @@ type Record struct {
 // "extra"). Nats-Msg-Id is handled separately and is not Soulstream-prefixed.
 func knownHeader(k string) bool {
 	switch k {
-	case HeaderVersion, HeaderAuthor, HeaderParents, HeaderType, HeaderTs, HeaderSig:
+	case HeaderVersion, HeaderAuthor, HeaderParents, HeaderType, HeaderTs, HeaderSig, HeaderActing:
 		return true
 	default:
 		return false
@@ -64,6 +73,12 @@ func (r Record) Validate() error {
 	}
 	if err := identity.CheckName(r.Author); err != nil {
 		return badAuthor(HeaderAuthor, err.Error())
+	}
+	if r.Acting == "" {
+		return missingField(HeaderActing)
+	}
+	if err := identity.CheckName(r.Acting); err != nil {
+		return badAuthor(HeaderActing, err.Error())
 	}
 	if r.Type == "" {
 		return missingField(HeaderType)
@@ -92,6 +107,7 @@ func (r Record) Build() (headers map[string][]string, payload []byte, err error)
 		HeaderMsgID:   {r.ID},
 		HeaderVersion: {strconv.Itoa(Version)},
 		HeaderAuthor:  {r.Author},
+		HeaderActing:  {r.Acting},
 		HeaderType:    {r.Type},
 		HeaderTs:      {r.Timestamp.Format(time.RFC3339Nano)},
 	}
@@ -138,7 +154,7 @@ func Parse(headers map[string][]string, payload []byte) (Record, error) {
 	if err != nil {
 		return Record{}, badVersion(HeaderVersion, "is not an integer: "+versionStr)
 	}
-	if version != Version {
+	if version != Version && version != LegacyVersion {
 		return Record{}, badVersion(HeaderVersion, "unsupported version "+versionStr)
 	}
 
@@ -148,6 +164,19 @@ func Parse(headers map[string][]string, payload []byte) (Record, error) {
 	}
 	if err := identity.CheckName(r.Author); err != nil {
 		return Record{}, badAuthor(HeaderAuthor, err.Error())
+	}
+
+	// The acting credential (E3): required on the version this library
+	// writes; absent on legacy records, which reads tolerate and
+	// verification names legacy-shape.
+	r.Acting = get(HeaderActing)
+	if version == Version && r.Acting == "" {
+		return Record{}, missingField(HeaderActing)
+	}
+	if r.Acting != "" {
+		if err := identity.CheckName(r.Acting); err != nil {
+			return Record{}, badAuthor(HeaderActing, err.Error())
+		}
 	}
 
 	r.Type = get(HeaderType)

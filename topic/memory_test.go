@@ -46,7 +46,7 @@ func publishAnswer(t *testing.T, nc *nats.Conn, reply, realmName, persona string
 	t.Helper()
 	payload, _ := json.Marshal(ap)
 	rec := record.Record{
-		ID: record.NewID(), Author: persona, Type: TypeMemoryAnswer,
+		ID: record.NewID(), Author: persona, Acting: persona, Type: TypeMemoryAnswer,
 		Timestamp: time.Now().UTC(), Payload: payload,
 	}
 	if key != nil {
@@ -118,6 +118,8 @@ func TestMemoryQueryGathersAndGrades(t *testing.T) {
 	if _, err := c.Provision(ctx); err != nil {
 		t.Fatalf("provision: %v", err)
 	}
+	rk := testRealmKey(t, url)
+	_ = rk
 	h, err := StartTopic(ctx, c, StartTopicInput{Name: "decisions", SubjectMatter: "s"})
 	if err != nil {
 		t.Fatalf("start: %v", err)
@@ -132,7 +134,7 @@ func TestMemoryQueryGathersAndGrades(t *testing.T) {
 		if req.Type != TypeMemoryQuery {
 			return
 		}
-		publishAnswer(t, nc, reply, "test-realm", "historian", nil, MemoryAnswerPayload{
+		publishAnswer(t, nc, reply, rk, "historian", nil, MemoryAnswerPayload{
 			Answer: "weekly, decided in the topic",
 			Citations: []MemoryCitation{
 				{Topic: h.Path(), OpID: turnID},
@@ -141,7 +143,7 @@ func TestMemoryQueryGathersAndGrades(t *testing.T) {
 			},
 			CoverageFrom: coverage,
 		})
-		publishAnswer(t, nc, reply, "test-realm", "scribbler", nil, MemoryAnswerPayload{
+		publishAnswer(t, nc, reply, rk, "scribbler", nil, MemoryAnswerPayload{
 			Answer: "I think it was monthly", // conflicting and uncited: gossip, still shown
 		})
 	})
@@ -182,6 +184,8 @@ func TestMemoryQuerySignatureRules(t *testing.T) {
 	if _, err := c.Provision(ctx); err != nil {
 		t.Fatalf("provision: %v", err)
 	}
+	rk := testRealmKey(t, url)
+	_ = rk
 
 	goodKey, _ := identity.GenerateSigningKey()
 	strangerKey, _ := identity.GenerateSigningKey()
@@ -192,9 +196,9 @@ func TestMemoryQuerySignatureRules(t *testing.T) {
 		if req.Type != TypeMemoryQuery {
 			return
 		}
-		publishAnswer(t, nc, reply, "test-realm", "goodwit", goodKey, MemoryAnswerPayload{Answer: "verified testimony"})
-		publishAnswer(t, nc, reply, "test-realm", "stranger", strangerKey, MemoryAnswerPayload{Answer: "signed by an unknown key"})
-		publishAnswer(t, nc, reply, "test-realm", "impostor", impostorKey, MemoryAnswerPayload{Answer: "wearing a stolen name"})
+		publishAnswer(t, nc, reply, rk, "goodwit", goodKey, MemoryAnswerPayload{Answer: "verified testimony"})
+		publishAnswer(t, nc, reply, rk, "stranger", strangerKey, MemoryAnswerPayload{Answer: "signed by an unknown key"})
+		publishAnswer(t, nc, reply, rk, "impostor", impostorKey, MemoryAnswerPayload{Answer: "wearing a stolen name"})
 	})
 	defer stop()
 
@@ -230,13 +234,15 @@ func TestMemoryQueryCapAndLateness(t *testing.T) {
 	if _, err := c.Provision(ctx); err != nil {
 		t.Fatalf("provision: %v", err)
 	}
+	rk := testRealmKey(t, url)
+	_ = rk
 
 	stop := rawMemoryResponder(t, url, func(req record.Record, reply string, nc *nats.Conn) {
 		if req.Type != TypeMemoryQuery {
 			return
 		}
 		for range MaxMemoryAnswers + 20 {
-			publishAnswer(t, nc, reply, "test-realm", "flooder", nil, MemoryAnswerPayload{Answer: "again"})
+			publishAnswer(t, nc, reply, rk, "flooder", nil, MemoryAnswerPayload{Answer: "again"})
 		}
 	})
 	res, err := MemoryQuery(ctx, c, MemoryQueryInput{Query: "flood", Timeout: time.Second}, nil)
@@ -251,7 +257,7 @@ func TestMemoryQueryCapAndLateness(t *testing.T) {
 	// Pre-build the late answer so the delayed goroutine never touches t; wait for
 	// it before the test returns.
 	latePayload, _ := json.Marshal(MemoryAnswerPayload{Answer: "wait for me"})
-	lateRec := record.Record{ID: record.NewID(), Author: "latecomer", Type: TypeMemoryAnswer, Timestamp: time.Now().UTC(), Payload: latePayload}
+	lateRec := record.Record{ID: record.NewID(), Author: "latecomer", Acting: "latecomer", Type: TypeMemoryAnswer, Timestamp: time.Now().UTC(), Payload: latePayload}
 	lateHd, lateBody, err := lateRec.Build()
 	if err != nil {
 		t.Fatalf("build late answer: %v", err)
@@ -337,7 +343,7 @@ func TestRespondMemoryCapabilities(t *testing.T) {
 		}
 		defer func() { _ = sub.Unsubscribe() }()
 		payload, _ := json.Marshal(MemoryFetchPayload{Topic: topicPath, OpID: opID, Deadline: deadline})
-		rec := record.Record{ID: record.NewID(), Author: "prober", Type: TypeMemoryFetch, Timestamp: time.Now().UTC(), Payload: payload}
+		rec := record.Record{ID: record.NewID(), Author: "prober", Acting: "prober", Type: TypeMemoryFetch, Timestamp: time.Now().UTC(), Payload: payload}
 		hd, b, _ := rec.Build()
 		msg := &nats.Msg{Subject: SvcMemorySubject, Header: nats.Header(hd), Data: b, Reply: inbox}
 		if err := nc.PublishMsg(msg); err != nil {
@@ -387,7 +393,7 @@ func TestRespondMemoryCapabilities(t *testing.T) {
 	qsub, _ := nc.SubscribeSync(inbox)
 	defer func() { _ = qsub.Unsubscribe() }()
 	payload, _ := json.Marshal(MemoryQueryPayload{Query: "anything?", Deadline: time.Now().Add(time.Second)})
-	qrec := record.Record{ID: record.NewID(), Author: "prober", Type: TypeMemoryQuery, Timestamp: time.Now().UTC(), Payload: payload}
+	qrec := record.Record{ID: record.NewID(), Author: "prober", Acting: "prober", Type: TypeMemoryQuery, Timestamp: time.Now().UTC(), Payload: payload}
 	hd, b, _ := qrec.Build()
 	if err := nc.PublishMsg(&nats.Msg{Subject: SvcMemorySubject, Header: nats.Header(hd), Data: b, Reply: inbox}); err != nil {
 		t.Fatalf("publish query: %v", err)
@@ -779,7 +785,7 @@ func TestRespondMemoryFailingSignerStaysSilent(t *testing.T) {
 		}
 		defer func() { _ = sub.Unsubscribe() }()
 		raw, _ := json.Marshal(payload)
-		rec := record.Record{ID: record.NewID(), Author: "prober", Type: opType, Timestamp: time.Now().UTC(), Payload: raw}
+		rec := record.Record{ID: record.NewID(), Author: "prober", Acting: "prober", Type: opType, Timestamp: time.Now().UTC(), Payload: raw}
 		hd, b, _ := rec.Build()
 		if perr := nc.PublishMsg(&nats.Msg{Subject: SvcMemorySubject, Header: nats.Header(hd), Data: b, Reply: inbox}); perr != nil {
 			t.Fatalf("publish: %v", perr)

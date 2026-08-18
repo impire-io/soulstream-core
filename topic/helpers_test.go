@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 
 	"github.com/impire-io/soulstream-core/identity"
 	"github.com/impire-io/soulstream-core/internal/natstest"
@@ -54,4 +55,25 @@ func provisionedClient(t *testing.T, persona string) *realm.Client {
 		t.Fatalf("provision: %v", err)
 	}
 	return c
+}
+
+// testRealmKey resolves the provisioned realm's identity for the manual
+// signing and offline verification tests — since v2 the KEY, never the
+// name, binds canonicals (A10, episode 0112).
+func testRealmKey(t *testing.T, url string) string {
+	t.Helper()
+	nc, err := nats.Connect(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer nc.Close()
+	js, err := jetstream.New(nc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, err := realm.LoadIdentity(context.Background(), js)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return id.RealmKey
 }
