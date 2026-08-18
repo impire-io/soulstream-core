@@ -50,8 +50,12 @@ type Contribution struct {
 	ResolvedBy string      `json:"resolved_by,omitempty"` // first resolver
 	ResolvedTs time.Time   `json:"resolved_ts,omitzero"`  // when — counts as topic activity
 	Edits      []EditStamp `json:"edits,omitempty"`       // applied edits, stream order
-	Sig        SigStatus   `json:"sig,omitempty"`         // verification status of this op's signature
-	StreamSeq  uint64      `json:"stream_seq,omitempty"`  // 0 for elements baked into a baseline
+	// Authority names the standing grant the op claims to act under (C3):
+	// the author acts, the named granter authorized. A claim, preserved —
+	// whether the grant was live is the projection's answer.
+	Authority *GrantAuthority `json:"authority,omitempty"`
+	Sig       SigStatus       `json:"sig,omitempty"`        // verification status of this op's signature
+	StreamSeq uint64          `json:"stream_seq,omitempty"` // 0 for elements baked into a baseline
 }
 
 // Attachment is a materialised attachment.add — a reference to a blob in the object store.
@@ -90,6 +94,7 @@ type MaterializedTopic struct {
 	Contributions []Contribution `json:"contributions,omitempty"`
 	Attachments   []Attachment   `json:"attachments,omitempty"`
 	WorkItems     []WorkItem     `json:"work_items,omitempty"`
+	Grants        []GrantItem    `json:"grants,omitempty"`
 	Frontier      []string       `json:"frontier"`            // leaf op-ids
 	Malformed     string         `json:"malformed,omitempty"` // non-empty reason if the log has no usable baseline
 	Warnings      []string       `json:"warnings,omitempty"`  // e.g. ignored unknown op types
@@ -133,12 +138,14 @@ func apply(path string, recs []SeqRecord) *MaterializedTopic {
 	// anchor-resolvable; the ones not on the frontier are interior — already built
 	// upon — so they must never resurface as frontier leaves.
 	workIdx := map[string]int{}    // item id → index in mt.WorkItems
+	grantIdx := map[string]int{}   // grant id → index in mt.Grants
 	editTarget := map[string]int{} // contribution op-id (or applied-edit op-id) → index
 	attIdx := map[string]int{}     // attachment op-id → index in mt.Attachments
 	if bp.Baked != nil {
 		mt.Contributions = append(mt.Contributions, bp.Baked.Contributions...)
 		mt.Attachments = append(mt.Attachments, bp.Baked.Attachments...)
 		mt.WorkItems = append(mt.WorkItems, bp.Baked.WorkItems...)
+		mt.Grants = append(mt.Grants, bp.Baked.Grants...)
 		if bp.Baked.Lifecycle != "" {
 			mt.Lifecycle = bp.Baked.Lifecycle
 		}
@@ -164,6 +171,15 @@ func apply(path string, recs []SeqRecord) *MaterializedTopic {
 			seen[w.ID] = true
 			referenced[w.ID] = true
 			for _, ev := range w.Timeline {
+				seen[ev.OpID] = true
+				referenced[ev.OpID] = true
+			}
+		}
+		for i, g := range mt.Grants {
+			grantIdx[g.ID] = i
+			seen[g.ID] = true
+			referenced[g.ID] = true
+			for _, ev := range g.Timeline {
 				seen[ev.OpID] = true
 				referenced[ev.OpID] = true
 			}
@@ -206,7 +222,8 @@ func apply(path string, recs []SeqRecord) *MaterializedTopic {
 			editTarget[r.ID] = len(mt.Contributions)
 			mt.Contributions = append(mt.Contributions, Contribution{
 				OpID: r.ID, Author: r.Author, Timestamp: r.Timestamp, Type: r.Type,
-				Body: tp.Body, Mentions: tp.Mentions, StreamSeq: sr.StreamSeq,
+				Body: tp.Body, Mentions: tp.Mentions, Authority: tp.Authority,
+				StreamSeq: sr.StreamSeq,
 			})
 		case TypeCommentAdd, TypeCommentReply:
 			content()
@@ -342,6 +359,45 @@ func apply(path string, recs []SeqRecord) *MaterializedTopic {
 				}
 			}
 			item.Timeline = append(item.Timeline, ev)
+		case TypeGrantIssue:
+			var gp GrantIssuePayload
+			if err := json.Unmarshal(r.Payload, &gp); err != nil ||
+				strings.TrimSpace(gp.Grantee) == "" || strings.TrimSpace(gp.Scope) == "" {
+				mt.Warnings = append(mt.Warnings, "ignored malformed grant.issue "+r.ID+" (missing grantee or scope)")
+				continue
+			}
+			content()
+			grantIdx[r.ID] = len(mt.Grants)
+			mt.Grants = append(mt.Grants, GrantItem{
+				ID: r.ID, Granter: r.Author, Grantee: gp.Grantee, Scope: gp.Scope,
+				Timestamp: r.Timestamp, Expires: gp.Expires,
+				Status: GrantActive, StreamSeq: sr.StreamSeq,
+			})
+		case TypeGrantRevoke:
+			var rp RefPayload
+			if err := json.Unmarshal(r.Payload, &rp); err != nil || rp.Anchor == nil || rp.Anchor.OpID == "" {
+				mt.Warnings = append(mt.Warnings, "ignored malformed grant.revoke "+r.ID+" (missing grant anchor)")
+				continue
+			}
+			content()
+			idx, ok := grantIdx[rp.Anchor.OpID]
+			if !ok {
+				mt.Warnings = append(mt.Warnings, "grant.revoke "+r.ID+" references unknown grant "+rp.Anchor.OpID+" — void")
+				continue
+			}
+			g := &mt.Grants[idx]
+			ev := GrantEvent{
+				OpID: r.ID, Kind: "revoke", Author: r.Author,
+				Timestamp: r.Timestamp, StreamSeq: sr.StreamSeq,
+			}
+			// Only the granter's revoke moves the state machine; a revoked
+			// grant stays revoked. Everything rejected stays visible as void.
+			if r.Author != g.Granter || g.Status != GrantActive {
+				ev.Void = true
+			} else {
+				g.Status = GrantRevoked
+			}
+			g.Timeline = append(g.Timeline, ev)
 		case TypeLifeTransition:
 			if mt.Lifecycle == Archived {
 				mt.Warnings = append(mt.Warnings, "ignored transition after archived (archived is terminal)")

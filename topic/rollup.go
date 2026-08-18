@@ -77,6 +77,7 @@ func (h *Handle) rollup(ctx context.Context, allowArchived bool) (string, error)
 			Contributions: cleanBakedContributions(mt.Contributions),
 			Attachments:   cleanBakedAttachments(mt.Attachments),
 			WorkItems:     cleanBakedWorkItems(mt.WorkItems),
+			Grants:        cleanBakedGrants(mt.Grants),
 			Lifecycle:     mt.Lifecycle,
 		},
 	}
@@ -275,6 +276,28 @@ func cleanBakedAttachments(as []Attachment) []Attachment {
 		out[i].StreamSeq = 0
 		out[i].Sig = ""
 		out[i].Dangling = false
+	}
+	return out
+}
+
+// cleanBakedGrants strips the volatile fields from grants and their
+// timelines. A standing grant MUST survive compaction: a rollup that
+// dropped consent would erase authority its issuer never withdrew.
+func cleanBakedGrants(gs []GrantItem) []GrantItem {
+	out := make([]GrantItem, len(gs))
+	copy(out, gs)
+	for i := range out {
+		out[i].StreamSeq = 0
+		out[i].Sig = ""
+		if len(out[i].Timeline) > 0 {
+			tl := make([]GrantEvent, len(out[i].Timeline))
+			copy(tl, out[i].Timeline)
+			for j := range tl {
+				tl[j].StreamSeq = 0
+				tl[j].Sig = ""
+			}
+			out[i].Timeline = tl
+		}
 	}
 	return out
 }

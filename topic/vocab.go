@@ -31,6 +31,8 @@ const (
 	TypeMemoryAnswer     = "memory.answer"
 	TypeMemoryFetch      = "memory.fetch"
 	TypeMemoryExhibit    = "memory.exhibit"
+	TypeGrantIssue       = "grant.issue"
+	TypeGrantRevoke      = "grant.revoke"
 )
 
 // Lifecycle is a topic's derived state.
@@ -80,6 +82,7 @@ type BakedState struct {
 	Contributions []Contribution `json:"contributions,omitempty"`
 	Attachments   []Attachment   `json:"attachments,omitempty"`
 	WorkItems     []WorkItem     `json:"work_items,omitempty"`
+	Grants        []GrantItem    `json:"grants,omitempty"`
 	Lifecycle     Lifecycle      `json:"lifecycle,omitempty"`
 }
 
@@ -91,10 +94,13 @@ type ManifestRef struct {
 	Size   uint64   `json:"size"`
 }
 
-// TurnPayload is the turn.post payload.
+// TurnPayload is the turn.post payload. Authority, when present, names
+// the standing grant the turn acts under (C3's dual attribution: the
+// author acts, the granter authorized).
 type TurnPayload struct {
-	Body     string   `json:"body"`
-	Mentions []string `json:"mentions,omitempty"`
+	Body      string          `json:"body"`
+	Mentions  []string        `json:"mentions,omitempty"`
+	Authority *GrantAuthority `json:"authority,omitempty"`
 }
 
 // Anchor references another operation by its op-id.
