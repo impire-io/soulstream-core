@@ -47,9 +47,10 @@ func ProvisionOn(ctx context.Context, js jetstream.JetStream, budgets ...Budgets
 	report := &ProvisionReport{}
 
 	// The realm identity first (A10): every v2 signature binds it, so a
-	// provisioned realm always has one. Connectionless here — the caller
-	// with a connection gets the account-derived key via Client.Provision.
-	if _, err := provisionIdentity(ctx, js, nil, ""); err != nil {
+	// provisioned realm always has one. Without a connection the key is
+	// minted; ProvisionOnConn gives a deployment with real accounts the
+	// account-derived key instead.
+	if _, err := provisionIdentity(ctx, js, provisionConn(ctx), ""); err != nil {
 		return nil, err
 	}
 
@@ -286,4 +287,21 @@ func reportRoof(v int64) int64 {
 		return 0
 	}
 	return v
+}
+
+// connKey carries a connection into ProvisionOn so the realm identity
+// can be the deployment's real account key (A10's preference) without
+// changing the function's signature on every existing caller.
+type connKey struct{}
+
+// WithConn returns a context that lets ProvisionOn derive the realm
+// identity from the connection's server-proven account, rather than
+// minting one. Consumers that hold a connection should use it.
+func WithConn(ctx context.Context, nc *nats.Conn) context.Context {
+	return context.WithValue(ctx, connKey{}, nc)
+}
+
+func provisionConn(ctx context.Context) *nats.Conn {
+	nc, _ := ctx.Value(connKey{}).(*nats.Conn)
+	return nc
 }
