@@ -46,6 +46,13 @@ func ProvisionOn(ctx context.Context, js jetstream.JetStream, budgets ...Budgets
 
 	report := &ProvisionReport{}
 
+	// The realm identity first (A10): every v2 signature binds it, so a
+	// provisioned realm always has one. Connectionless here — the caller
+	// with a connection gets the account-derived key via Client.Provision.
+	if _, err := provisionIdentity(ctx, js, nil, ""); err != nil {
+		return nil, err
+	}
+
 	streamResult, converged, err := provisionOpLog(ctx, js, b.OpLog)
 	if err != nil {
 		return nil, err
