@@ -33,7 +33,10 @@ type Entry struct {
 	// Persona, workload kind only: the tool workload's persona, resolvable
 	// in the persona registry like any participant.
 	Persona string
-	// Endpoint, workload kind only: where a door reaches it. Empty is a
+	// Endpoint is where a door reaches the tool — the remote MCP server's
+	// URL for a remote entry, the workload's serving address for a
+	// workload one. Reachability is the catalog's to say for both kinds;
+	// how authority is obtained stays the identity plane's. Empty is a
 	// declared-but-not-serving tool, which readers report honestly rather
 	// than refuse.
 	Endpoint string
@@ -138,11 +141,13 @@ func (e Entry) Validate() error {
 	}
 	switch e.Kind {
 	case KindRemote:
-		// The public half a ceremony needs lives on the identity plane; an
-		// entry that starts describing it here is the split-brain the
-		// design refuses.
-		if e.Persona != "" || e.Endpoint != "" {
-			return fmt.Errorf("toolcatalog: remote entry %s carries workload fields — a remote tool's reachable half lives on the identity plane, by name", e.Name)
+		// The ceremony's half — OAuth endpoints, client ids, secrets —
+		// lives on the identity plane; an entry that starts describing it
+		// here is the split-brain the design refuses. The service
+		// Endpoint is not ceremony: where a door reaches the tool is the
+		// catalog's to say for both kinds.
+		if e.Persona != "" {
+			return fmt.Errorf("toolcatalog: remote entry %s carries a persona — a remote tool holds no realm identity", e.Name)
 		}
 	case KindWorkload:
 		if e.Persona == "" {

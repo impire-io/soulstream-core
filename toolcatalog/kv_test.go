@@ -40,6 +40,7 @@ func TestPublishLookupRoundTrip(t *testing.T) {
 	c := provisioned(t, "ops")
 
 	remote := Entry{Name: "github", Kind: KindRemote,
+		Endpoint:    "https://api.github.invalid/mcp",
 		Description: "GitHub, reached through the identity plane"}
 	workload := Entry{Name: "notes", Kind: KindWorkload, Persona: "notes-tool",
 		Endpoint: "http://127.0.0.1:9999/mcp", Description: "the deployment's own notes server"}
@@ -54,7 +55,7 @@ func TestPublishLookupRoundTrip(t *testing.T) {
 		t.Fatalf("lookup github: found=%v %v", found, err)
 	}
 	if got.Kind != KindRemote || got.Description != remote.Description ||
-		got.Persona != "" || got.Endpoint != "" {
+		got.Persona != "" || got.Endpoint != remote.Endpoint {
 		t.Fatalf("github came back %+v", got)
 	}
 	got, found, err = Lookup(ctx, c, "notes")
@@ -166,7 +167,6 @@ func TestWriteTimeValidation(t *testing.T) {
 	for what, e := range map[string]Entry{
 		"a nameless entry":           {Kind: KindRemote},
 		"an unknown kind":            {Name: "x", Kind: "function"},
-		"a remote with an endpoint":  {Name: "x", Kind: KindRemote, Endpoint: "http://y"},
 		"a remote with a persona":    {Name: "x", Kind: KindRemote, Persona: "y"},
 		"a workload without persona": {Name: "x", Kind: KindWorkload},
 		"a workload with a bad name": {Name: "x", Kind: KindWorkload, Persona: "NOT A NAME"},
